@@ -1,0 +1,25 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Maven
+zhufeng-resume-backend/target/
+*.class
+*.jar
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Zip
+*.zip
+
+# Sensitive
+application*.yml
+application*.properties
+*.env
