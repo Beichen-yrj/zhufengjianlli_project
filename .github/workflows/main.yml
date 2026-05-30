@@ -1,0 +1,26 @@
+name: 页面构建和部署
+
+on:
+  push:
+    branches: [ main ]  # 推送到 main 分支时触发
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 如果是静态网页项目（HTML/CSS/JS），这一步可以省略
+      - name: 安装依赖并构建
+        run: |
+          npm install
+          npm run build
+
+      - name: 部署到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./  # 构建产物目录，静态页直接填 ./
