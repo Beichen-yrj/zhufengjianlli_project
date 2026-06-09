@@ -30,6 +30,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getTemplates } from '../api/template'
 import { ElMessage } from 'element-plus'
+import { createResume } from '../api/resume'
 
 const router = useRouter()
 const templates = ref([])
@@ -43,8 +44,17 @@ onMounted(async () => {
   }
 })
 
-const selectTemplate = (template) => {
-  router.push(`/editor?templateId=${template.id}`)
+const selectTemplate = async (template) => {
+  try {
+    const res = await createResume({
+      title: '我的简历',
+      templateId: template.id,
+      resumeData: '{"basicInfo":{},"education":[],"experience":[],"projects":[],"skills":[],"selfEvaluation":""}'
+    })
+    router.push(`/editor/${res.data.id}`)
+  } catch (error) {
+    ElMessage.error('创建简历失败')
+  }
 }
 </script>
 

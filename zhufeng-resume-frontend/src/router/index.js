@@ -30,7 +30,20 @@ const routes = [
         path: '/templates',
         name: 'Templates',
         component: () => import('../pages/Templates.vue')
+    },
+    {
+        path: '/editor/:id',
+        name: 'Editor',
+        component: () => import('../pages/Editor.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/ai-generate',
+        name: 'AiGenerate',
+        component: () => import('../pages/AiGenerate.vue'),
+        meta: { requiresAuth: true }
     }
+
 ]
 
 const router = createRouter({

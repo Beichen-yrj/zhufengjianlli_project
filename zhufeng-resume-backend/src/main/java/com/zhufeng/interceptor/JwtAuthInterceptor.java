@@ -16,6 +16,11 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // 放行 OPTIONS 预检请求（浏览器跨域时会先发这个）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // 第1步：从请求头获取 Token（格式：Bearer <token>）
         String authHeader = request.getHeader("Authorization");
         
