@@ -53,7 +53,7 @@
 
       <!-- 右侧预览区 -->
       <div class="editor-preview">
-        <ResumePreview :resumeData="resumeData" :templateConfig="templateConfig" />
+        <ResumePreview ref="previewComponent" :resumeData="resumeData" :templateConfig="templateConfig" />
       </div>
     </div>
   </div>
@@ -74,6 +74,25 @@ import ProjectsForm from '../components/editor/ProjectsForm.vue'
 import SkillsForm from '../components/editor/SkillsForm.vue'
 import SelfEvalForm from '../components/editor/SelfEvalForm.vue'
 import ResumePreview from '../components/editor/ResumePreview.vue'
+import { exportToPdf } from '../utils/exportPdf'
+
+// 简历预览组件的 ref
+const previewComponent = ref(null)
+
+// 导出 PDF
+const handleExport = async () => {
+  try {
+    const el = previewComponent.value?.previewRef
+    if (!el) {
+      ElMessage.warning('预览未加载')
+      return
+    }
+    await exportToPdf(el, resume.title || '我的简历')
+    ElMessage.success('导出成功')
+  } catch (error) {
+    ElMessage.error('导出失败')
+  }
+}
 
 const route = useRoute()
 const router = useRouter()

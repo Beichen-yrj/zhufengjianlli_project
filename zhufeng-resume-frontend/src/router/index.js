@@ -21,28 +21,32 @@ const routes = [
         component: () => import('../pages/Register.vue')
     },
     {
+    path: '/',
+    component: () => import('../layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
         path: '/dashboard',
         name: 'Dashboard',
-        component: () => import('../pages/Dashboard.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
+        component: () => import('../pages/Dashboard.vue')
+      },
+      {
         path: '/templates',
         name: 'Templates',
         component: () => import('../pages/Templates.vue')
-    },
-    {
-        path: '/editor/:id',
-        name: 'Editor',
-        component: () => import('../pages/Editor.vue'),
-        meta: { requiresAuth: true }
-    },
-    {
+      },
+      {
         path: '/ai-generate',
         name: 'AiGenerate',
-        component: () => import('../pages/AiGenerate.vue'),
-        meta: { requiresAuth: true }
-    }
+        component: () => import('../pages/AiGenerate.vue')
+      },
+      {
+        path: '/editor/:id',
+        name: 'Editor',
+        component: () => import('../pages/Editor.vue')
+      }
+    ]
+  }
 
 ]
 

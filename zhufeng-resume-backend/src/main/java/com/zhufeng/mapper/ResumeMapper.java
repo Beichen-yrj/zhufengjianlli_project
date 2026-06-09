@@ -23,15 +23,15 @@ public interface ResumeMapper {
             "WHERE r.id = #{id}")
     Resume findById(Long id);
 
-    // 创建简历
+    // 创建简历（resume_data 加 ::jsonb 显式转换类型）
     @Insert("INSERT INTO t_resume(user_id, title, template_id, resume_data, status) " +
-            "VALUES(#{userId}, #{title}, #{templateId}, #{resumeData}, #{status})")
+            "VALUES(#{userId}, #{title}, #{templateId}, #{resumeData}::jsonb, #{status})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Resume resume);
 
     // 更新简历
     @Update("UPDATE t_resume SET title = #{title}, template_id = #{templateId}, " +
-            "resume_data = #{resumeData}, status = #{status}, updated_at = CURRENT_TIMESTAMP " +
+            "resume_data = #{resumeData}::jsonb, status = #{status}, updated_at = CURRENT_TIMESTAMP " +
             "WHERE id = #{id}")
     void update(Resume resume);
 

@@ -1,56 +1,34 @@
 <template>
   <div class="dashboard">
-    <div class="header">
+    <div class="page-header">
       <h2>我的简历</h2>
-      <div class="actions">
-        <el-button type="primary" @click="$router.push('/templates')">
-          新建简历
-        </el-button>
-        <el-button @click="handleLogout">退出</el-button>
-      </div>
+      <el-button type="primary" @click="$router.push('/templates')">
+        新建简历
+      </el-button>
     </div>
 
-    <div class="content">
-      <!-- 简历列表 -->
-      <div v-if="resumes.length > 0" class="resume-list">
-        <el-card 
-          v-for="resume in resumes" 
-          :key="resume.id" 
-          class="resume-card"
-          shadow="hover"
-        >
-          <template #header>
-            <div class="card-header">
-              <span>{{ resume.title }}</span>
-              <el-tag :type="resume.status === 1 ? 'info' : 'success'" size="small">
-                {{ resume.status === 1 ? '草稿' : '已完成' }}
-              </el-tag>
-            </div>
-          </template>
-          
-          <div class="card-body">
-            <p>模板：{{ resume.templateName || '默认模板' }}</p>
-            <p>更新时间：{{ formatDate(resume.updatedAt) }}</p>
+    <div v-if="resumes.length > 0" class="resume-list">
+      <el-card v-for="resume in resumes" :key="resume.id" shadow="hover" class="resume-card">
+        <template #header>
+          <div class="card-header">
+            <span>{{ resume.title }}</span>
+            <el-tag :type="resume.status === 1 ? 'info' : 'success'" size="small">
+              {{ resume.status === 1 ? '草稿' : '已完成' }}
+            </el-tag>
           </div>
-          
-          <div class="card-footer">
-            <el-button type="primary" size="small" @click="editResume(resume.id)">
-              编辑
-            </el-button>
-            <el-button type="danger" size="small" @click="handleDelete(resume.id)">
-              删除
-            </el-button>
-          </div>
-        </el-card>
-      </div>
-
-      <!-- 空状态 -->
-      <el-empty v-else description="暂无简历">
-        <el-button type="primary" @click="$router.push('/templates')">
-          创建第一份简历
-        </el-button>
-      </el-empty>
+        </template>
+        <p>模板：{{ resume.templateName || '默认模板' }}</p>
+        <p>更新：{{ formatDate(resume.updatedAt) }}</p>
+        <div class="card-actions">
+          <el-button type="primary" size="small" @click="editResume(resume.id)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(resume.id)">删除</el-button>
+        </div>
+      </el-card>
     </div>
+
+    <el-empty v-else description="暂无简历">
+      <el-button type="primary" @click="$router.push('/templates')">创建第一份简历</el-button>
+    </el-empty>
   </div>
 </template>
 
@@ -66,77 +44,40 @@ const userStore = useUserStore()
 const resumes = ref([])
 
 onMounted(async () => {
-  if (!userStore.userInfo) {
-    await userStore.getUserInfo()
-  }
+  if (!userStore.userInfo) await userStore.getUserInfo()
   await loadResumes()
 })
 
 const loadResumes = async () => {
-  try {
-    const res = await getResumes()
-    resumes.value = res.data
-  } catch (error) {
-    console.error(error)
-  }
+  const res = await getResumes()
+  resumes.value = res.data
 }
 
-const editResume = (id) => {
-  router.push(`/editor/${id}`)
-}
+const editResume = (id) => router.push(`/editor/${id}`)
 
 const handleDelete = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这份简历吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm('确定删除吗？', '提示', { type: 'warning' })
     await deleteResume(id)
     ElMessage.success('删除成功')
     await loadResumes()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error(error)
-    }
-  }
+  } catch (e) {}
 }
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('zh-CN')
-}
-
-const handleLogout = () => {
-  userStore.logout()
-  router.push('/login')
-}
+const formatDate = (d) => new Date(d).toLocaleDateString('zh-CN')
 </script>
 
 <style scoped>
-.dashboard {
-  min-height: 100vh;
-  background: #f5f5f5;
-}
+.dashboard { padding: 30px; }
 
-.header {
-  background: white;
-  padding: 20px 40px;
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.content {
-  padding: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.page-header h2 { margin: 0; font-size: 24px; }
 
 .resume-list {
   display: grid;
@@ -150,13 +91,13 @@ const handleLogout = () => {
   align-items: center;
 }
 
-.card-body p {
-  margin: 8px 0;
+.resume-card p {
   color: #666;
   font-size: 14px;
+  margin: 5px 0;
 }
 
-.card-footer {
+.card-actions {
   display: flex;
   gap: 10px;
   margin-top: 15px;

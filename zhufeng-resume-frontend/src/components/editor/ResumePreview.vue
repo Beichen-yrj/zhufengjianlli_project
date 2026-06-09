@@ -1,5 +1,5 @@
 <template>
-  <div class="resume-preview" :style="previewStyle">
+  <div class="resume-preview" :style="previewStyle" ref="previewRef">
     <div class="resume-paper">
       <!-- 姓名和基本信息 -->
       <div class="basic-section">
@@ -69,6 +69,11 @@
 
 <script setup>
 import { computed } from 'vue'
+
+const previewRef = ref(null)
+
+// 暴露给父组件调用
+defineExpose({ previewRef })
 
 const props = defineProps({
   resumeData: Object,
