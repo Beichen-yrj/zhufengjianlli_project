@@ -709,12 +709,12 @@
           <span class="ai-extract-arrow" :class="{ rotated: aiExtractExpanded }">&#9660;</span>
         </div>
         <div v-show="aiExtractExpanded" class="ai-extract-body">
-          <p class="ai-extract-tip">粘贴一段简历文字或职位描述，AI 将自动提取信息并填入对应板块</p>
+          <p class="ai-extract-tip">粘贴一段简历文字或职位描述，AI 将自动提取信息并填入对应板块。<br><span style="color:#6B7280;font-size:11px;">提示：可在文本开头加 <b>[工作经历]</b> / <b>[教育经历]</b> / <b>[项目经历]</b> 等标记限定提取到指定板块</span></p>
           <el-input
             v-model="aiExtractInput"
             type="textarea"
             :rows="10"
-            placeholder="例如：&#10;张三，5年前端开发经验，熟悉 React 和 Vue.js，曾在字节跳动担任高级前端工程师。&#10;毕业于北京大学计算机专业，期望薪资 20k-30k..."
+            placeholder="例如：&#10;【全量提取】&#10;张三，5年前端开发经验，熟悉 React 和 Vue.js，曾在字节跳动担任高级前端工程师。毕业于北京大学计算机专业，期望薪资 20k-30k...&#10;&#10;【限定板块】&#10;[工作经历]&#10;2022-至今 字节跳动 高级前端工程师 负责抖音Web端性能优化，首屏加载时间从3.2s降至1.1s..."
             resize="vertical"
             size="small"
           />

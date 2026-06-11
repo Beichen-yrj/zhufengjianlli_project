@@ -122,10 +122,23 @@ public class AiService {
         if ("extract".equals(type)) {
             return """
                 你是简历信息提取专家。请从以下文本中提取简历信息，只返回JSON对象，不要任何解释或额外文字。
-                
+
+                【重要：板块限定规则】
+                如果用户在文本开头使用了方括号标记指定板块（如 [工作经历]、[教育经历]、[项目经历]、[基本信息]、[专业技能]、[自我评价]、[证书荣誉]），
+                则只提取到该标记对应的板块，不要将数据填入其他板块。
+                例如：
+                - 文本以 "[工作经历]" 开头 → 只返回 experience 字段
+                - 文本以 "[教育经历]" 开头 → 只返回 education 字段
+                - 文本以 "[项目经历]" 开头 → 只返回 projects 字段
+                - 文本以 "[基本信息]" 开头 → 只返回 basic 字段（含 name/phone/email 等）
+                - 文本以 "[专业技能]" 开头 → 只返回 skills 字段
+                - 文本以 "[自我评价]" 开头 → 只返回 selfEvaluation 字段
+                - 文本以 "[证书荣誉]" 开头 → 只返回 certificates 字段
+                - 没有标记或标记不匹配 → 正常提取所有板块
+
                 JSON格式（只返回有信息的字段，没有的字段不要返回）：
-                {"name":"姓名","email":"邮箱","phone":"电话","gender":"性别","birthday":"出生日期","city":"城市","targetJob":"期望岗位","expectedSalary":"期望薪资","jobType":"全职/兼职/实习","skills":"技能用换行分隔","experience":[{"company":"公司","position":"职位","startDate":"开始","endDate":"结束","content":"工作内容"}],"projects":[{"name":"项目名","role":"角色","content":"项目内容"}],"education":[{"school":"学校","major":"专业","degree":"学历"}],"certificates":[{"name":"证书名","issuer":"颁发机构","date":"时间"}],"selfEvaluation":"自我评价"}
-                
+                {"name":"姓名","email":"邮箱","phone":"电话","gender":"性别","birthday":"出生日期","city":"城市","targetJob":"期望岗位","expectedSalary":"期望薪资","jobType":"全职/兼职/实习","skills":"技能用换行分隔","experience":[{"company":"公司","position":"职位","startDate":"开始","endDate":"结束","content":"工作内容"}],"projects":[{"name":"项目名","role":"角色","content":"项目内容"}],"education":[{"school":"学校","major":"专业","degree":"学历"}],"certificates":[{"name":"证书名","issuer":"颁发机构","date":"时间","description":"获奖经历"}],"selfEvaluation":"自我评价"}
+
                 待提取文本：
                 %s
                 """.formatted(content);

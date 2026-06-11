@@ -777,6 +777,10 @@ async function onAiExtract({ text }) {
     formPanelRef.value?.resetAiExtract(false)
     return false
   }
+  // 1. 提取前快照（用于撤回）
+  const snapshot = JSON.parse(JSON.stringify(formData))
+  const snapshotEnabledIds = [...enabledModuleIds.value]
+
   ElMessage.info('AI 正在提取信息...')
   try {
     const model = aiStore.currentModel
@@ -801,22 +805,162 @@ async function onAiExtract({ text }) {
     } else {
       data = extracted
     }
-    if (data) {
-      applyExtractedData(data)
-      ElMessage.success('AI 提取完成，信息已填入各板块')
-      formPanelRef.value?.resetAiExtract(true)
-      return true
-    } else {
+    if (!data) {
       ElMessage.error('AI 返回数据为空，请重试')
       formPanelRef.value?.resetAiExtract(false)
       return false
     }
+
+    // 2. 先应用提取结果到 formData
+    applyExtractedData(data)
+
+    // 3. 弹出对比弹窗，让用户选择采用或撤回
+    showExtractDiffDialog(snapshot, snapshotEnabledIds, data)
+
   } catch (e) {
     console.error('AI提取失败:', e)
     ElMessage.error('AI 提取失败，请检查 AI 配置')
     formPanelRef.value?.resetAiExtract(false)
     return false
   }
+}
+
+/**
+ * 显示 AI 提取对比弹窗：展示提取前后差异，用户可选择"采用"或"撤回"
+ */
+function showExtractDiffDialog(snapshot, snapshotEnabledIds, extractedData) {
+  // 构建差异摘要文本
+  const diffSummary = buildExtractDiffSummary(snapshot, extractedData)
+
+  ElMessageBox({
+    title: 'AI 提取结果 - 请确认',
+    message: () => {
+      const container = document.createElement('div')
+      container.style.cssText = 'width:100%;max-width:600px;'
+      container.innerHTML = `
+        <div style="margin-bottom:12px;padding:8px 12px;background:#EFF6FF;border-radius:6px;border-left:3px solid #3B82F6;">
+          <div style="font-size:12px;color:#2563EB;font-weight:600;margin-bottom:4px;">AI 已完成信息提取</div>
+          <div style="font-size:11px;color:#6B7280;">以下为提取到的内容变更，请确认是否采用</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:4px;">提取前（当前简历）</div>
+            <div style="padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;font-size:12px;color:#6B7280;line-height:1.7;max-height:160px;overflow-y:auto;">${formatFormDataForDisplay(snapshot)}</div>
+          </div>
+          <div style="text-align:center;padding:4px 0;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 4l-6 6h4v6h4v-6h4L10 4z" fill="#3B82F6"/></svg>
+            <span style="font-size:11px;color:#9CA3AF;margin-left:4px;">AI 提取</span>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;">提取后（AI 填入）</div>
+            <div style="padding:10px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:6px;font-size:12px;color:#065F46;line-height:1.7;max-height:200px;overflow-y:auto;">${formatFormDataForDisplay(JSON.parse(JSON.stringify(formData)))}</div>
+          </div>
+          <div style="margin-top:4px;padding:8px 10px;background:#FFFBEB;border-radius:6px;border-left:3px solid #F59E0B;">
+            <div style="font-size:11px;color:#92400E;font-weight:600;margin-bottom:3px;">变更摘要</div>
+            <div style="font-size:11px;color:#78350F;line-height:1.6;">${diffSummary}</div>
+          </div>
+        </div>
+      `
+      return container
+    },
+    showCancelButton: true,
+    confirmButtonText: '✓ 采用提取结果',
+    cancelButtonText: '✗ 撤回，恢复原状',
+    distinguishCancelAndClose: true,
+    closeOnClickModal: false,
+    confirmButtonClass: 'el-button--success',
+    cancelButtonClass: '',
+    beforeClose: (action, instance, done) => {
+      done()
+      if (action === 'confirm') {
+        // 用户确认采用 → 保留已应用的提取结果
+        ElMessage.success('已应用 AI 提取结果')
+        formPanelRef.value?.resetAiExtract(true)
+      } else {
+        // 用户取消 → 撤回到快照状态
+        revertToSnapshot(snapshot, snapshotEnabledIds)
+        ElMessage.info('已撤回，恢复到提取前的状态')
+        formPanelRef.value?.resetAiExtract(false)
+      }
+    }
+  })
+}
+
+/** 将 formData 格式化为可读的摘要文本 */
+function formatFormDataForDisplay(data) {
+  const parts = []
+  if (data.basic?.name) parts.push(`姓名: ${data.basic.name}`)
+  if (data.basic?.phone) parts.push(`电话: ${data.basic.phone}`)
+  if (data.basic?.email) parts.push(`邮箱: ${data.basic.email}`)
+  if (data.basic?.targetJob) parts.push(`意向: ${data.basic.targetJob}`)
+  if (data.intention?.expectedSalary) parts.push(`薪资: ${data.intention.expectedSalary}`)
+  if (data.education && data.education.length) {
+    data.education.forEach(e => { if (e.school) parts.push(`教育: ${e.school} · ${e.major || ''} · ${e.degree || ''}`) })
+  }
+  if (data.experience && data.experience.length) {
+    data.experience.forEach(e => { if (e.company) parts.push(`工作: ${e.company} · ${e.position || ''}`) })
+  }
+  if (data.projects && data.projects.length) {
+    data.projects.forEach(p => { if (p.name) parts.push(`项目: ${p.name} · ${p.role || ''}`) })
+  }
+  if (data.skills && String(data.skills).trim()) parts.push(`技能: ${String(data.skills).trim().substring(0, 80)}${String(data.skills).length > 80 ? '...' : ''}`)
+  if (data.certificates && data.certificates.length) {
+    data.certificates.forEach(c => { if (c.name) parts.push(`证书: ${c.name}`) })
+  }
+  if (data.selfEvaluation && String(data.selfEvaluation).trim()) parts.push(`评价: ${String(data.selfEvaluation).trim().substring(0, 80)}...`)
+  return parts.length ? parts.join('\n') : '(空)'
+}
+
+/** 构建提取前后的差异摘要 */
+function buildExtractDiffSummary(before, afterData) {
+  const changes = []
+  // 基本信息
+  if (afterData.basic?.name && before.basic.name !== afterData.basic.name) changes.push(`<b>姓名</b>: "${escapeHtml(before.basic.name || '空')}" → "${escapeHtml(afterData.basic.name)}"`)
+  if (afterData.basic?.phone && before.basic.phone !== afterData.basic.phone) changes.push(`<b>电话</b>: "${escapeHtml(before.basic.phone || '空')}" → "${escapeHtml(afterData.basic.phone)}"`)
+  if (afterData.basic?.email && before.basic.email !== afterData.basic.email) changes.push(`<b>邮箱</b>: "${escapeHtml(before.basic.email || '空')}" → "${escapeHtml(afterData.basic.email)}"`)
+  if (afterData.basic?.targetJob && before.basic.targetJob !== afterData.basic.targetJob) changes.push(`<b>意向</b>: "${escapeHtml(before.basic.targetJob || '空')}" → "${escapeHtml(afterData.basic.targetJob)}"`)
+  // 教育经历
+  if (afterData.education?.length) {
+    const added = afterData.education.length - before.education.length
+    if (added > 0) changes.push(`<b>教育经历</b>: 新增 ${added} 条`)
+  }
+  // 工作经历
+  if (afterData.experience?.length) {
+    const added = afterData.experience.length - before.experience.length
+    if (added > 0) changes.push(`<b>工作经历</b>: 新增 ${added} 条`)
+  }
+  // 项目经历
+  if (afterData.projects?.length) {
+    const added = afterData.projects.length - before.projects.length
+    if (added > 0) changes.push(`<b>项目经历</b>: 新增 ${added} 条`)
+  }
+  // 技能
+  if (afterData.skills && !before.skills) changes.push(`<b>专业技能</b>: 新增`)
+  else if (afterData.skills && before.skills && afterData.skills !== before.skills) changes.push(`<b>专业技能</b>: 内容更新`)
+  // 证书
+  if (afterData.certificates?.length) {
+    const added = afterData.certificates.length - before.certificates.length
+    if (added > 0) changes.push(`<b>证书荣誉</b>: 新增 ${added} 条`)
+  }
+  // 自我评价
+  if (afterData.selfEvaluation && !before.selfEvaluation) changes.push(`<b>自我评价</b>: 新增`)
+  else if (afterData.selfEvaluation && before.selfEvaluation && afterData.selfEvaluation !== before.selfEvaluation) changes.push(`<b>自我评价</b>: 内容更新`)
+  return changes.length ? changes.join('<br>') : '未检测到明显变化'
+}
+
+/** 撤回到快照状态 */
+function revertToSnapshot(snapshot, snapshotEnabledIds) {
+  Object.assign(formData.basic, snapshot.basic)
+  formData.intention = snapshot.intention ? { ...snapshot.intention } : { expectedSalary: '', jobType: '全职', availableDate: '' }
+  formData.education = snapshot.education.map(e => ({ ...e }))
+  formData.experience = snapshot.experience.map(e => ({ ...e }))
+  formData.projects = snapshot.projects.map(p => ({ ...p }))
+  formData.skills = snapshot.skills || ''
+  formData.selfEvaluation = snapshot.selfEvaluation || ''
+  formData.certificates = snapshot.certificates.map(c => ({ ...c }))
+  formData.customModules = snapshot.customModules ? snapshot.customModules.map(cm => ({ ...cm })) : []
+  formData.menuSections = snapshot.menuSections ? [...snapshot.menuSections] : undefined
+  enabledModuleIds.value = snapshotEnabledIds
 }
 
 // 将 AI 提取的结构化数据写入 formData
