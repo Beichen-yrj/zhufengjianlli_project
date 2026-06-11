@@ -15,7 +15,7 @@
         <el-button type="primary" size="large" class="hero-btn-primary" @click="$router.push('/register')">
           立即免费使用
         </el-button>
-        <el-button size="large" class="hero-btn-secondary" @click="$router.push('/templates')">
+        <el-button size="large" class="hero-btn-secondary" @click="goToTemplates">
           浏览模板
         </el-button>
       </div>
@@ -42,6 +42,21 @@
     <div class="hero-decor hero-decor-2"></div>
   </section>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goToTemplates() {
+  const token = localStorage.getItem('token')
+  if (token) {
+    router.push('/templates')
+  } else {
+    router.push({ path: '/login', query: { redirect: '/templates' } })
+  }
+}
+</script>
 
 <style scoped>
 .hero {

@@ -19,13 +19,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
-                // 第1步：拦截哪些路径（需要登录才能访问）
+                // 拦截所有 API
                 .addPathPatterns("/api/v1/**")
-                // 第2步：排除哪些路径（不需要登录）
+                // 排除：登录、注册（不需要认证）
                 .excludePathPatterns(
-                        "/api/v1/auth/**",       // 认证接口：登录、注册
-                        "/api/v1/test/**",       // 测试接口
-                        "/api/v1/templates/**"   // 模板列表（公开浏览）
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/register",
+                        "/api/v1/test/**",
+                        "/api/v1/templates/**"
                 );
     }
 

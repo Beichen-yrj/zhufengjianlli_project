@@ -20,7 +20,7 @@
           <div class="cf-col">
             <span class="cf-col-title">产品</span>
             <a href="#features">功能介绍</a>
-            <router-link to="/templates">模板市场</router-link>
+            <a href="javascript:void(0)" @click="goToWorkspace">模板市场</a>
           </div>
           <div class="cf-col">
             <span class="cf-col-title">资源</span>
@@ -35,6 +35,21 @@
     </footer>
   </section>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goToWorkspace() {
+  const token = localStorage.getItem('token')
+  if (token) {
+    router.push('/templates')
+  } else {
+    router.push({ path: '/login', query: { redirect: '/templates' } })
+  }
+}
+</script>
 
 <style scoped>
 .cta {

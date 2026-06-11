@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isTokenValid, clearAuth } from '../utils/auth'
 
 const routes = [
   {
@@ -64,24 +65,31 @@ const routes = [
   }
 ]
 
-// 需要登录才能执行创建操作的路由
-const authRequiredPaths = ['/dashboard', '/editor', '/ai-generate', '/templates', '/ai-settings', '/settings']
-
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
-// 路由守卫
+// 路由守卫 - 检查 token 有效性（不仅是存在性）
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  // MainLayout 子路由需要登录
-  if (to.meta.requiresAuth && !token) {
-    // 记住目标路径，登录后跳回
-    next({ path: '/login', query: { redirect: to.fullPath } })
-  } else {
-    next()
+  // 需要认证的页面
+  if (to.meta.requiresAuth) {
+    // 检查 token 是否存在且未过期
+    if (!isTokenValid()) {
+      // token 不存在或已过期，清除残留数据并跳转登录
+      clearAuth()
+      next({ path: '/login', query: { redirect: to.fullPath, reason: 'expired' } })
+      return
+    }
   }
+
+  // 已登录用户访问 login/register 时重定向到工作台
+  if ((to.path === '/login' || to.path === '/register') && isTokenValid()) {
+    next({ path: '/dashboard' })
+    return
+  }
+
+  next()
 })
 
 export default router

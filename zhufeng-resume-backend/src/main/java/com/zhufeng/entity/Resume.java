@@ -26,8 +26,12 @@ public class Resume {
     private String templateName;    // JOIN 查询时填充
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    public void setResumeData(String generatedResumeData) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setResumeData'");
+
+    /**
+     * 兼容旧代码：设置 AI 生成的简历 JSON 数据
+     * 数据存入 basic 字段（JSONB 格式）
+     */
+    public void setResumeData(String resumeDataJson) {
+        this.basic = resumeDataJson;
     }
 }

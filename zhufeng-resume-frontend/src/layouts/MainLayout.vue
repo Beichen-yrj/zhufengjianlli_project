@@ -30,7 +30,7 @@
       </nav>
 
       <!-- 底部用户信息 -->
-      <div class="sidebar-footer" @click="$router.push('/settings')">
+      <div class="sidebar-footer" @click="toggleUserMenu" v-click-outside="closeUserMenu">
         <div class="user-avatar">
           {{ userInitial }}
         </div>
@@ -41,6 +41,31 @@
         <svg class="footer-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M6 4L10 8L6 12" stroke="#999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+
+        <!-- 退出登录 弹层菜单 -->
+        <transition name="fade">
+          <div v-if="userMenuOpen" class="user-menu" @click.stop>
+            <div class="user-menu-header" v-if="userStore.userInfo">
+              <div class="user-menu-name">{{ userStore.userInfo.nickname || userStore.userInfo.username }}</div>
+              <div class="user-menu-email" v-if="userStore.userInfo.email">{{ userStore.userInfo.email }}</div>
+            </div>
+            <div class="user-menu-divider"></div>
+            <div class="user-menu-item" @click="goSettings">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                <path d="M8 1v2M8 13v2M15 8h-2M3 8H1M13 3l-1.4 1.4M4.4 11.6L3 13M13 13l-1.4-1.4M4.4 4.4L3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              <span>通用设置</span>
+            </div>
+            <div class="user-menu-item danger" @click="handleLogout">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12V13C10 13.5 9.6 14 9 14H4C3.4 14 3 13.5 3 13V3C3 2.5 3.4 2 4 2H9C9.6 2 10 2.5 10 3V4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M14 8H6M6 8L8 6M6 8L8 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>退出登录</span>
+            </div>
+          </div>
+        </transition>
       </div>
     </aside>
 
@@ -52,13 +77,45 @@
 </template>
 
 <script setup>
-import { computed, h } from 'vue'
+import { computed, h, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+
+// 用户菜单展开状态
+const userMenuOpen = ref(false)
+const toggleUserMenu = () => { userMenuOpen.value = !userMenuOpen.value }
+const closeUserMenu = () => { userMenuOpen.value = false }
+
+const goSettings = () => {
+  userMenuOpen.value = false
+  router.push('/settings')
+}
+
+const handleLogout = async () => {
+  userMenuOpen.value = false
+  await userStore.logout()
+  // store 内部已跳转 /login，这里兜底再跳一次
+  if (route.path !== '/login') router.push('/login')
+}
+
+// v-click-outside 自定义指令：点击元素外部时触发回调
+const vClickOutside = {
+  mounted(el, binding) {
+    el._clickOutsideHandler = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value(event)
+      }
+    }
+    document.addEventListener('click', el._clickOutsideHandler)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el._clickOutsideHandler)
+  }
+}
 
 // 图标组件
 const IconResume = {
@@ -283,6 +340,88 @@ const userInitial = computed(() => {
   opacity: 0.5;
 }
 
+/* 用户弹层菜单 */
+.user-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 10px;
+  right: 10px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid #EEEFF2;
+  padding: 6px;
+  z-index: 100;
+}
+
+.user-menu-header {
+  padding: 10px 10px 8px;
+}
+
+.user-menu-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.user-menu-email {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.user-menu-divider {
+  height: 1px;
+  background: #F0F1F3;
+  margin: 4px 0;
+}
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #555C6B;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.user-menu-item:hover {
+  background: #F4F5F7;
+  color: #1a1a2e;
+}
+
+.user-menu-item.danger {
+  color: #ef4444;
+}
+
+.user-menu-item.danger:hover {
+  background: #FEF2F2;
+  color: #dc2626;
+}
+
+.user-menu-item svg {
+  flex-shrink: 0;
+}
+
+/* sidebar-footer 需要 relative 以便 user-menu 绝对定位 */
+.sidebar-footer {
+  position: relative;
+}
+
+/* 菜单动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(4px);
+}
 /* 主内容区 */
 .main-content {
   flex: 1;

@@ -9,7 +9,7 @@
       <div class="ln-links">
         <a href="#features" class="ln-link">功能介绍</a>
         <a href="#faq" class="ln-link">常见问题</a>
-        <el-button v-if="hasToken" type="primary" @click="$router.push('/dashboard')">
+        <el-button v-if="hasToken" type="primary" @click="goToWorkspace">
           进入工作台
         </el-button>
         <template v-else>
@@ -23,9 +23,10 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const isScrolled = ref(false)
 const hasToken = ref(!!localStorage.getItem('token'))
 
@@ -33,6 +34,14 @@ const hasToken = ref(!!localStorage.getItem('token'))
 watch(() => route.path, () => {
   hasToken.value = !!localStorage.getItem('token')
 })
+
+function goToWorkspace() {
+  if (hasToken.value) {
+    router.push('/dashboard')
+  } else {
+    router.push({ path: '/login', query: { redirect: '/dashboard' } })
+  }
+}
 
 function onScroll() {
   isScrolled.value = window.scrollY > 60

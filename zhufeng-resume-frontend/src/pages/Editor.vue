@@ -660,25 +660,82 @@ async function onAiPolish({ text, field }) {
 
     let polishedText = res.data?.polishedContent || res.data?.result || res.data?.content || ''
 
-    // 根据字段类型回填到对应位置
-    if (field === 'skills') formData.skills = polishedText
-    else if (field === 'selfEvaluation') formData.selfEvaluation = polishedText
-    else if (field.startsWith('experience.')) {
-      const [_, idx] = field.split('.')
-      if (formData.experience[idx]) formData.experience[idx].content = polishedText
-    } else if (field.startsWith('projects.')) {
-      const [_, idx] = field.split('.')
-      if (formData.projects[idx]) formData.projects[idx].content = polishedText
-    } else if (field.startsWith('education.')) {
-      const [_, idx] = field.split('.')
-      if (formData.education[idx]) formData.education[idx].description = polishedText
+    // 弹出对比弹窗，让用户选择是否采用润色结果
+    const fieldNameMap = {
+      skills: '专业技能',
+      selfEvaluation: '自我评价',
+      experience: '工作经历',
+      projects: '项目经历',
+      education: '教育经历',
+      basic: '基本信息',
     }
+    const displayName = fieldNameMap[field] || field
 
-    ElMessage.success('AI 润色完成，内容已替换')
+    ElMessageBox({
+      title: `${displayName} - AI 润色结果`,
+      message: () => {
+        const container = document.createElement('div')
+        container.style.cssText = 'width:100%;max-width:580px;'
+        container.innerHTML = `
+          <div style="margin-bottom:14px;padding:8px 12px;background:#F0FDF4;border-radius:6px;border-left:3px solid #22C55E;">
+            <div style="font-size:12px;color:#16A34A;font-weight:600;margin-bottom:4px;">AI 润色工程师</div>
+            <div style="font-size:11px;color:#6B7280;">已根据 STAR 法则优化，量化成果，突出亮点</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:4px;">原文</div>
+              <div style="padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;font-size:13px;color:#6B7280;line-height:1.7;white-space:pre-wrap;max-height:180px;overflow-y:auto;">${escapeHtml(text)}</div>
+            </div>
+            <div style="text-align:center;">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 4l-6 6h4v6h4v-6h4L10 4z" fill="#3B82F6"/></svg>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;">润色后</div>
+              <div style="padding:10px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:6px;font-size:13px;color:#065F46;line-height:1.7;white-space:pre-wrap;max-height:220px;overflow-y:auto;">${escapeHtml(polishedText)}</div>
+            </div>
+          </div>
+        `
+        return container
+      },
+      showCancelButton: true,
+      confirmButtonText: '采用润色结果',
+      cancelButtonText: '放弃',
+      distinguishCancelAndClose: true,
+      closeOnClickModal: false,
+      confirmButtonClass: 'el-button--success',
+      cancelButtonClass: '',
+      beforeClose: (action, instance, done) => {
+        done()
+      }
+    }).then(() => {
+      // 用户点击"采用润色结果"
+      if (field === 'skills') formData.skills = polishedText
+      else if (field === 'selfEvaluation') formData.selfEvaluation = polishedText
+      else if (field.startsWith('experience.')) {
+        const [_, idx] = field.split('.')
+        if (formData.experience[idx]) formData.experience[idx].content = polishedText
+      } else if (field.startsWith('projects.')) {
+        const [_, idx] = field.split('.')
+        if (formData.projects[idx]) formData.projects[idx].content = polishedText
+      } else if (field.startsWith('education.')) {
+        const [_, idx] = field.split('.')
+        if (formData.education[idx]) formData.education[idx].description = polishedText
+      }
+      ElMessage.success('已采用 AI 润色结果')
+    }).catch((action) => {
+      if (action === 'cancel') {
+        ElMessage.info('已放弃润色结果，保持原文不变')
+      }
+    })
   } catch (e) {
     console.error('AI润色失败:', e)
     ElMessage.error('AI 润色失败，请检查 API 配置')
   }
+}
+
+function escapeHtml(str) {
+  if (!str) return ''
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
 // ===== AI 智能提取 =====
