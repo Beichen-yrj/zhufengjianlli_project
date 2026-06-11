@@ -77,13 +77,23 @@
 </template>
 
 <script setup>
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+
+// 应用启动 / 路由进入时强制从后端拉取最新用户信息
+// 多账号安全：切换账号后必须重新校验，绝不信任本地缓存
+onMounted(async () => {
+  try {
+    await userStore.fetchCurrentUser(true)
+  } catch (_) {
+    // 401 已由 request.js 拦截器统一处理：清空 + 跳转 login
+  }
+})
 
 // 用户菜单展开状态
 const userMenuOpen = ref(false)
@@ -99,7 +109,13 @@ const handleLogout = async () => {
   userMenuOpen.value = false
   await userStore.logout()
   // store 内部已跳转 /login，这里兜底再跳一次
-  if (route.path !== '/login') router.push('/login')
+  if (route.path !== '/login') router.push('/login?reason=logout')
+}
+
+// 强制下线（多账号切换场景）：销毁该用户所有 Token + Session
+const handleForceLogout = async () => {
+  userMenuOpen.value = false
+  await userStore.logoutAll()
 }
 
 // v-click-outside 自定义指令：点击元素外部时触发回调

@@ -414,6 +414,8 @@ function parseJson(raw, fallback) {
 onMounted(() => loadResume())
 
 async function loadResume() {
+  // 安全策略：不再从 Pinia store 读取 fallback 数据
+  // 防止上一用户的数据残留到当前用户编辑器中
   try {
     const res = await getResumeById(resumeId)
     const d = res.data
@@ -502,23 +504,15 @@ async function loadResume() {
     if (settings.fontSize) fontSize.value = settings.fontSize
 
     store.activeResumeId = resumeId
-  } catch (_) {
-    if (store.resumes[resumeId]) {
-      store.activeResumeId = resumeId
-      const local = store.resumes[resumeId]
-      const b = local.basic || {}
-      // 检测本地数据是否也是空的新建简历
-      const isEmptyLocal = !b.name && !b.phone && !b.email &&
-        (!local.education || local.education.length === 0) &&
-        (!local.experience || local.experience.length === 0)
-      if (!isEmptyLocal) {
-        mapLocalToForm(local)
-      }
-      // 空简历时保留 defaultFormData 预填充数据，不做任何覆盖
-    } else {
-      ElMessage.error('简历不存在')
-      router.push('/dashboard')
+  } catch (e) {
+    // 安全策略：API 失败时直接跳回 dashboard，绝不从 Pinia store 读取 fallback
+    // 原因：Pinia store 可能残留上一用户的数据，导致跨账号数据泄漏
+    console.error('[loadResume] 加载简历失败:', e)
+    // 401 已由 request.js 拦截器统一处理：清空 + 跳转 login
+    if (e?.response?.status !== 401) {
+      ElMessage.error('简历加载失败，请稍后重试')
     }
+    router.push('/dashboard')
   }
 }
 

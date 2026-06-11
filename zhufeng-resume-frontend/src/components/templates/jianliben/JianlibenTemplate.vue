@@ -187,6 +187,7 @@
             <strong :style="getNonBasicFieldStyle('cert-'+i+'-name')">{{ c.name }}</strong>
             <span v-if="c.issuer" :style="getNonBasicFieldStyle('cert-'+i+'-issuer')">（{{ c.issuer }}）</span>
             <span v-if="c.date" class="jl-cert-date" :style="getNonBasicFieldStyle('cert-'+i+'-date')">{{ c.date }}</span>
+            <p v-if="c.description" class="jl-cert-desc" :style="getNonBasicFieldStyle('cert-'+i+'-desc')">{{ c.description }}</p>
           </div>
         </template>
         <div v-else class="jl-empty">点击添加证书荣誉</div>
@@ -743,6 +744,14 @@ function onSectionDrop(e, targetIdx) {
   color: #999;
   font-size: 9pt;
   margin-left: 4px;
+}
+
+.jl-cert-desc {
+  font-size: 9pt;
+  color: #666;
+  margin-top: 1mm;
+  padding-left: 2mm;
+  line-height: 1.5;
 }
 
 /* ========== 空状态提示 ========== */

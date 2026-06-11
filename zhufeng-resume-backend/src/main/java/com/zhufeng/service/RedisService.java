@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  *
  * Key 命名规范：
  *   token:{tokenValue}     → 用户ID (用于校验Token是否有效)
+ *   token:user:{userId}:*  → 该用户的所有 Token（用于一键清空）
  *   session:userId         → 用户Session信息JSON
  *   login_limit:{username} → 登录失败次数 (防暴力破解)
  */
@@ -38,12 +40,15 @@ public class RedisService {
      * @param token      JWT Token
      * @param userId     用户ID
      * @param username   用户名
-     * @param expireDays 过期天数
+     * @param ttl        过期时长
      */
-    public void saveToken(String token, Long userId, String username, int expireDays) {
-        String key = "token:" + token;
+    public void saveToken(String token, Long userId, String username, Duration ttl) {
         String value = userId + ":" + username;
-        redisTemplate.opsForValue().set(key, value, Duration.ofDays(expireDays));
+        // 1. 存主 token 索引（用于校验）
+        redisTemplate.opsForValue().set("token:" + token, value, ttl);
+        // 2. 存反向索引（用于一键清除某用户的所有 token）
+        redisTemplate.opsForSet().add("token:user:" + userId, token);
+        redisTemplate.expire("token:user:" + userId, ttl);
     }
 
     /**
@@ -52,15 +57,39 @@ public class RedisService {
      * @return 有效返回 "userId:username"，无效/不存在返回 null
      */
     public String validateToken(String token) {
-        String key = "token:" + token;
-        return redisTemplate.opsForValue().get(key);
+        return redisTemplate.opsForValue().get("token:" + token);
     }
 
     /**
      * 删除 Token（登出时调用，使Token立即失效）
      */
     public void deleteToken(String token) {
-        String key = "token:" + token;
+        // 1. 先解析 token 拿到 userId（从 token 字符串中获取）
+        String value = redisTemplate.opsForValue().get("token:" + token);
+        redisTemplate.delete("token:" + token);
+
+        // 2. 从反向索引中删除
+        if (value != null && value.contains(":")) {
+            try {
+                Long uid = Long.parseLong(value.split(":")[0]);
+                redisTemplate.opsForSet().remove("token:user:" + uid, token);
+            } catch (NumberFormatException ignore) {}
+        }
+    }
+
+    /**
+     * 删除某用户的所有 Token（强制下线）
+     */
+    public void deleteUserTokens(Long userId) {
+        String key = "token:user:" + userId;
+        Set<String> tokens = redisTemplate.opsForSet().members(key);
+        if (tokens != null && !tokens.isEmpty()) {
+            // 删除主索引
+            for (String t : tokens) {
+                redisTemplate.delete("token:" + t);
+            }
+        }
+        // 删除反向索引
         redisTemplate.delete(key);
     }
 
@@ -68,8 +97,7 @@ public class RedisService {
      * 获取 Token 剩余过期时间（秒），-2 表示 key 不存在
      */
     public long getTokenTtl(String token) {
-        String key = "token:" + token;
-        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return redisTemplate.getExpire("token:" + token, TimeUnit.SECONDS);
     }
 
     // ===== Session 管理 =====
@@ -79,9 +107,8 @@ public class RedisService {
      */
     public void saveSession(Long userId, Object sessionData, Duration ttl) {
         try {
-            String key = "session:" + userId;
             String json = objectMapper.writeValueAsString(sessionData);
-            redisTemplate.opsForValue().set(key, json, ttl);
+            redisTemplate.opsForValue().set("session:" + userId, json, ttl);
         } catch (Exception e) {
             throw new RuntimeException("序列化 Session 失败", e);
         }
@@ -91,8 +118,7 @@ public class RedisService {
      * 获取用户 Session
      */
     public <T> T getSession(Long userId, Class<T> clazz) {
-        String key = "session:" + userId;
-        String json = redisTemplate.opsForValue().get(key);
+        String json = redisTemplate.opsForValue().get("session:" + userId);
         if (json == null) return null;
         try {
             return objectMapper.readValue(json, clazz);
@@ -134,8 +160,7 @@ public class RedisService {
      * 检查是否被限流（15分钟内失败超过5次）
      */
     public boolean isLoginLimited(String username) {
-        String key = "login_limit:" + username;
-        String countStr = redisTemplate.opsForValue().get(key);
+        String countStr = redisTemplate.opsForValue().get("login_limit:" + username);
         if (countStr == null) return false;
         return Long.parseLong(countStr) >= 5;
     }

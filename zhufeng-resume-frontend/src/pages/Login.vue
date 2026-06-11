@@ -89,8 +89,9 @@ const handleLogin = async () => {
   await formRef.value.validate()
   loading.value = true
   try {
-    // 记住登录：7天有效；不记住：仅当前会话（关闭浏览器即失效）
-    const expireDays = rememberMe.value ? 7 : 0.125 // 不勾选则3小时有效
+    // 记住登录：7天有效；不记住：3小时有效
+    // 后端支持 double 类型参数，0.125 = 3 小时
+    const expireDays = rememberMe.value ? 7 : 0.125
     await userStore.login(loginForm.value, expireDays)
     ElMessage.success('登录成功')
     // 有 redirect 参数则跳回目标页

@@ -139,7 +139,7 @@ import { useUserStore } from '../stores/user'
 import { getResumes, deleteResume as apiDeleteResume } from '../api/resume'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-const RECYCLE_BIN_KEY = 'resume_recycle_bin'
+const RECYCLE_BIN_PREFIX = 'resume_recycle_bin'  // 多账号安全：按 userId 隔离
 const AUTO_CLEAN_DAYS = 5
 
 const router = useRouter()
@@ -150,8 +150,22 @@ const recycleBin = ref([])
 const showRecycleBin = ref(false)
 const autoCleanDays = ref(AUTO_CLEAN_DAYS)
 
+/**
+ * 获取当前用户的回收站 key（按 userId 隔离，防止多账号数据残留）
+ */
+function getRecycleBinKey() {
+  const uid = userStore.userInfo?.id
+  return uid ? `${RECYCLE_BIN_PREFIX}:${uid}` : `${RECYCLE_BIN_PREFIX}:guest`
+}
+
 onMounted(async () => {
-  if (!userStore.userInfo) await userStore.getUserInfo()
+  // 强制从后端拉取最新用户信息（不信任本地缓存）
+  try {
+    await userStore.fetchCurrentUser(true)
+  } catch (_) {
+    // 401 已由 request.js 统一处理
+    return
+  }
   await loadResumes()
   loadRecycleBin()
 })
@@ -159,7 +173,7 @@ onMounted(async () => {
 // ===== 回收站 =====
 function loadRecycleBin() {
   try {
-    const raw = localStorage.getItem(RECYCLE_BIN_KEY)
+    const raw = localStorage.getItem(getRecycleBinKey())
     const list = raw ? JSON.parse(raw) : []
     // 自动清理超过5天的数据
     const now = Date.now()
@@ -178,7 +192,7 @@ function loadRecycleBin() {
 }
 
 function saveRecycleBin(list) {
-  localStorage.setItem(RECYCLE_BIN_KEY, JSON.stringify(list))
+  localStorage.setItem(getRecycleBinKey(), JSON.stringify(list))
 }
 
 function moveToRecycleBin(resume) {
@@ -193,7 +207,7 @@ function moveToRecycleBin(resume) {
 
 function getRawRecycleBin() {
   try {
-    const raw = localStorage.getItem(RECYCLE_BIN_KEY)
+    const raw = localStorage.getItem(getRecycleBinKey())
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }

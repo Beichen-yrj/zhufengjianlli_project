@@ -116,7 +116,13 @@ const userName = ref('')
 const userEmail = ref('')
 
 onMounted(async () => {
-  if (!userStore.userInfo) await userStore.getUserInfo()
+  // 多账号安全：强制从后端拉取最新用户信息，不信任本地缓存
+  try {
+    await userStore.fetchCurrentUser(true)
+  } catch (_) {
+    // 401 已由 request.js 拦截器统一处理
+    return
+  }
   userName.value = userStore.userInfo?.username || ''
   userEmail.value = userStore.userInfo?.email || ''
 

@@ -63,6 +63,7 @@ import { JIANLIBEN_TEMPLATES, TEMPLATE_CATEGORIES } from '../data/jianlibenTempl
 import { useResumeStore } from '../stores/resume'
 import { createResume as apiCreateResume } from '../api/resume'
 import { ElMessage } from 'element-plus'
+import { getToken } from '../utils/auth'
 
 const router = useRouter()
 const resumeStore = useResumeStore()
@@ -116,7 +117,7 @@ function previewTemplate(tpl) {
 }
 
 async function useTemplate(tpl) {
-  const token = localStorage.getItem('token')
+  const token = getToken()
   if (!token) {
     router.push({ path: '/login', query: { redirect: '/templates' } })
     return

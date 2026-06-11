@@ -661,6 +661,15 @@
               <div v-if="activeFieldKey === 'cert-'+idx+'-date'" class="field-font-bar"><FieldFontBarContent :fk="'cert-'+idx+'-date'" :get-style="getNonBasicFieldStyle" @change="onNonBasicFieldFontChange"/></div>
             </transition>
           </div>
+          <div class="form-item" style="margin-bottom:0;">
+            <label>获奖经历</label>
+            <div class="field-cell" :class="{ focused: activeFieldKey === 'cert-'+idx+'-desc' }">
+              <el-input v-model="item.description" type="textarea" :rows="3" placeholder="如：在全国大学生数学建模竞赛中获得省级一等奖，负责模型构建与算法实现..." size="small" resize="none" @input="emitUpdate" @focus="activeFieldKey = 'cert-'+idx+'-desc'"/>
+            </div>
+            <transition name="fade-down">
+              <div v-if="activeFieldKey === 'cert-'+idx+'-desc'" class="field-font-bar"><FieldFontBarContent :fk="'cert-'+idx+'-desc'" :get-style="getNonBasicFieldStyle" @change="onNonBasicFieldFontChange"/></div>
+            </transition>
+          </div>
         </div>
       </section>
 
@@ -896,7 +905,7 @@ const itemTemplates = {
   experience: () => ({ _id:uid(),company:'',position:'',startDate:'',endDate:'',description:'',content:'' }),
   projects: () => ({ _id:uid(),name:'',role:'',description:'',startDate:'',endDate:'',link:'',startText:'',content:'' }),
   education: () => ({ _id:uid(),school:'',major:'',degree:'',gpa:'',startDate:'',endDate:'',isCurrent:false,description:'',courses:'' }),
-  certificates: () => ({ _id:uid(),name:'',issuer:'',date:'' }),
+  certificates: () => ({ _id:uid(),name:'',issuer:'',date:'',description:'' }),
 }
 
 const localData = reactive(deepMerge(defaultData(), props.resumeData))
@@ -994,7 +1003,7 @@ function initModuleDefaultData(moduleId) {
       break
     case 'certificates':
       if (!d.certificates || !d.certificates.length) {
-        d.certificates = [{ _id: uid(), name: '', issuer: '', date: '' }]
+        d.certificates = [{ _id: uid(), name: '', issuer: '', date: '', description: '' }]
       }
       break
     case 'skills':

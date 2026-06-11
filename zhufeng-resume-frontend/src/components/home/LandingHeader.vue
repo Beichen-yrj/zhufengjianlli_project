@@ -24,15 +24,27 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { getToken } from '../../utils/auth'
 
 const route = useRoute()
 const router = useRouter()
 const isScrolled = ref(false)
-const hasToken = ref(!!localStorage.getItem('token'))
+const hasToken = ref(false)
+function checkToken() {
+  hasToken.value = !!getToken()
+}
+onMounted(() => {
+  checkToken()
+  // 监听 storage 事件（其他 tab 登出/登录时同步状态）
+  window.addEventListener('storage', checkToken)
+})
+onUnmounted(() => {
+  window.removeEventListener('storage', checkToken)
+})
 
 // 路由切换时重新检查 token（登录/登出后更新）
 watch(() => route.path, () => {
-  hasToken.value = !!localStorage.getItem('token')
+  hasToken.value = !!getToken()
 })
 
 function goToWorkspace() {
