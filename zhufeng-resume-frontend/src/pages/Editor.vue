@@ -503,6 +503,18 @@ async function loadResume() {
     if (settings.lineHeight) lineHeight.value = settings.lineHeight
     if (settings.fontSize) fontSize.value = settings.fontSize
 
+    // 恢复模块显隐配置（关键：防止删除/隐藏的模块在重新进入时恢复）
+    if (d.menuSections) {
+      const savedMenuSections = parseJson(d.menuSections, null)
+      if (savedMenuSections && Array.isArray(savedMenuSections)) {
+        formData.menuSections = savedMenuSections
+        // 从保存的 menuSections 中提取已启用的模块 ID
+        enabledModuleIds.value = savedMenuSections
+          .filter(s => s.enabled !== false)
+          .map(s => s.id)
+      }
+    }
+
     store.activeResumeId = resumeId
   } catch (e) {
     // 安全策略：API 失败时直接跳回 dashboard，绝不从 Pinia store 读取 fallback
@@ -539,6 +551,8 @@ function onFormDataUpdate(data) {
   if (data._meta) {
     if (data._meta.enabledModuleIds) {
       enabledModuleIds.value = data._meta.enabledModuleIds
+      // 同步 menuSections 的 enabled 状态与顺序
+      syncMenuSectionsFromEnabled()
     }
     if (data._meta.fieldStyles) {
       fieldStyles.value = data._meta.fieldStyles
@@ -569,11 +583,34 @@ function onReorderSectionsFromCanvas({ fromId, fromIdx, toIdx }) {
   if (targetRealIdx > ids.length) targetRealIdx = ids.length
   ids.splice(targetRealIdx, 0, moved)
   enabledModuleIds.value = ids
+  // 同步 menuSections 排序（保持与 enabledModuleIds 顺序一致）
+  syncMenuSectionsFromEnabled()
 }
 
-// ===== 左侧面板模块排序 =====
+// ===== 表单面板拖拽排序 =====
 function onReorderModulesFromPanel(newOrder) {
   enabledModuleIds.value = newOrder
+  syncMenuSectionsFromEnabled()
+}
+
+/**
+ * 将 enabledModuleIds 的顺序和显隐状态同步到 formData.menuSections
+ * 确保保存时模块配置能正确持久化到后端
+ */
+function syncMenuSectionsFromEnabled() {
+  if (!formData.menuSections || !formData.menuSections.length) return
+  const enabledSet = new Set(enabledModuleIds.value)
+  // 按 enabledModuleIds 的顺序重排 menuSections，并同步 enabled 状态
+  const ordered = []
+  for (const id of enabledModuleIds.value) {
+    const found = formData.menuSections.find(s => s.id === id)
+    if (found) ordered.push({ ...found, enabled: true })
+  }
+  // 不在 enabledModuleIds 中的标记为 disabled
+  for (const s of formData.menuSections) {
+    if (!enabledSet.has(s.id)) ordered.push({ ...s, enabled: false })
+  }
+  formData.menuSections = ordered
 }
 
 // ===== 区块点击交互 =====
@@ -1036,6 +1073,7 @@ async function handleSave() {
       selfEvaluationContent: formData.selfEvaluation,
       certificates: JSON.stringify(formData.certificates),
       customModules: JSON.stringify(formData.customModules || []),
+      menuSections: JSON.stringify(formData.menuSections),
       hiddenSections: JSON.stringify([...hiddenSections.value]),
       globalSettings: JSON.stringify({
         themeColor: themeColor.value, fontFamily: fontFamily.value, lineHeight: lineHeight.value, fontSize: fontSize.value
