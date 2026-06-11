@@ -830,8 +830,10 @@ async function onAiExtract({ text }) {
  */
 function showExtractDiffDialog(snapshot, snapshotEnabledIds, extractedData) {
   const diffSummary = buildExtractDiffSummary(snapshot, extractedData)
-  const beforeText = formatFormDataForDisplay(snapshot)
-  const afterText = formatFormDataForDisplay(JSON.parse(JSON.stringify(formData)))
+  // 提取前：用快照数据 + 快照时的可见模块列表（只显示画布上实际展示的内容）
+  const beforeText = formatFormDataForDisplay(snapshot, snapshotEnabledIds)
+  // 提取后：用当前 formData + 当前可见模块列表
+  const afterText = formatFormDataForDisplay(JSON.parse(JSON.stringify(formData)), enabledModuleIds.value)
 
   ElMessageBox({
     title: 'AI 提取结果 - 请确认',
@@ -888,28 +890,35 @@ function showExtractDiffDialog(snapshot, snapshotEnabledIds, extractedData) {
   })
 }
 
-/** 将 formData 格式化为可读的摘要文本 */
-function formatFormDataForDisplay(data) {
+/**
+ * 将 formData 格式化为可读的摘要文本
+ * @param {Object} data - formData 数据
+ * @param {string[]} [visibleIds] - 当前可见的模块 ID 列表，传入则只展示可见模块数据
+ */
+function formatFormDataForDisplay(data, visibleIds) {
   const parts = []
-  if (data.basic?.name) parts.push(`姓名: ${data.basic.name}`)
-  if (data.basic?.phone) parts.push(`电话: ${data.basic.phone}`)
-  if (data.basic?.email) parts.push(`邮箱: ${data.basic.email}`)
-  if (data.basic?.targetJob) parts.push(`意向: ${data.basic.targetJob}`)
-  if (data.intention?.expectedSalary) parts.push(`薪资: ${data.intention.expectedSalary}`)
-  if (data.education && data.education.length) {
+  const isVisible = (id) => !visibleIds || visibleIds.includes(id)
+  if (isVisible('basic')) {
+    if (data.basic?.name) parts.push(`姓名: ${data.basic.name}`)
+    if (data.basic?.phone) parts.push(`电话: ${data.basic.phone}`)
+    if (data.basic?.email) parts.push(`邮箱: ${data.basic.email}`)
+    if (data.basic?.targetJob) parts.push(`意向: ${data.basic.targetJob}`)
+  }
+  if (isVisible('intention') && data.intention?.expectedSalary) parts.push(`薪资: ${data.intention.expectedSalary}`)
+  if (isVisible('education') && data.education && data.education.length) {
     data.education.forEach(e => { if (e.school) parts.push(`教育: ${e.school} · ${e.major || ''} · ${e.degree || ''}`) })
   }
-  if (data.experience && data.experience.length) {
+  if (isVisible('experience') && data.experience && data.experience.length) {
     data.experience.forEach(e => { if (e.company) parts.push(`工作: ${e.company} · ${e.position || ''}`) })
   }
-  if (data.projects && data.projects.length) {
+  if (isVisible('projects') && data.projects && data.projects.length) {
     data.projects.forEach(p => { if (p.name) parts.push(`项目: ${p.name} · ${p.role || ''}`) })
   }
-  if (data.skills && String(data.skills).trim()) parts.push(`技能: ${String(data.skills).trim().substring(0, 80)}${String(data.skills).length > 80 ? '...' : ''}`)
-  if (data.certificates && data.certificates.length) {
+  if (isVisible('skills') && data.skills && String(data.skills).trim()) parts.push(`技能: ${String(data.skills).trim().substring(0, 80)}${String(data.skills).length > 80 ? '...' : ''}`)
+  if (isVisible('certificates') && data.certificates && data.certificates.length) {
     data.certificates.forEach(c => { if (c.name) parts.push(`证书: ${c.name}`) })
   }
-  if (data.selfEvaluation && String(data.selfEvaluation).trim()) parts.push(`评价: ${String(data.selfEvaluation).trim().substring(0, 80)}...`)
+  if (isVisible('selfEvaluation') && data.selfEvaluation && String(data.selfEvaluation).trim()) parts.push(`评价: ${String(data.selfEvaluation).trim().substring(0, 80)}...`)
   return parts.length ? parts.join('\n') : '(空)'
 }
 
