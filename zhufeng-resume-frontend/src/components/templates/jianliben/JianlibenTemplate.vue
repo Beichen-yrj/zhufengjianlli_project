@@ -427,7 +427,7 @@ function onSectionDrop(e, targetIdx) {
   --font-size: 10pt;
   --name-size: 22pt;
   width: 210mm;
-  height: 297mm;
+  min-height: 297mm;
   padding: 8mm 14mm;
   box-sizing: border-box;
   background: #fff;
@@ -435,7 +435,6 @@ function onSectionDrop(e, targetIdx) {
   font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
   font-size: var(--font-size);
   line-height: 1.55;
-  overflow: hidden;
   position: relative;
 }
 
@@ -771,10 +770,9 @@ function onSectionDrop(e, targetIdx) {
 @media print {
   .jl-template {
     width: 210mm;
-    height: 297mm;
+    min-height: 297mm;
     padding: 8mm 14mm;
     box-shadow: none;
-    overflow: hidden;
   }
 
   .jl-header,
