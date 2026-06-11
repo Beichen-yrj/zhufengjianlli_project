@@ -427,15 +427,16 @@ function onSectionDrop(e, targetIdx) {
   --font-size: 10pt;
   --name-size: 22pt;
   width: 210mm;
-  min-height: 297mm;
-  padding: 10mm 14mm;
+  height: 297mm;
+  padding: 8mm 14mm;
   box-sizing: border-box;
   background: #fff;
   color: #222;
   font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
   font-size: var(--font-size);
-  line-height: 1.65;
+  line-height: 1.55;
   overflow: hidden;
+  position: relative;
 }
 
 /* ========== 头部区域 ========== */
@@ -443,7 +444,7 @@ function onSectionDrop(e, targetIdx) {
   cursor: pointer;
   transition: background-color 0.15s ease;
   border-radius: 4px;
-  margin-bottom: 5mm;
+  margin-bottom: 3mm;
 }
 
 .jl-header.section-hover:hover {
@@ -574,8 +575,8 @@ function onSectionDrop(e, targetIdx) {
 
 /* ========== 区块通用样式 ========== */
 .jl-section {
-  margin-bottom: 5mm;
-  padding: 2mm 0;
+  margin-bottom: 3mm;
+  padding: 1.5mm 0;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.15s ease;
@@ -604,7 +605,7 @@ function onSectionDrop(e, targetIdx) {
   font-size: 13pt;
   font-weight: 800;
   color: var(--theme);
-  margin: 0 0 3mm 0;
+  margin: 0 0 2mm 0;
   letter-spacing: 0.5px;
   line-height: 1.3;
 }
@@ -652,7 +653,7 @@ function onSectionDrop(e, targetIdx) {
 .jl-exp-block,
 .jl-proj-block,
 .jl-edu-block {
-  margin-bottom: 4mm;
+  margin-bottom: 3mm;
 }
 
 .jl-block-head {
@@ -770,9 +771,10 @@ function onSectionDrop(e, targetIdx) {
 @media print {
   .jl-template {
     width: 210mm;
-    min-height: 297mm;
-    padding: 10mm 14mm;
+    height: 297mm;
+    padding: 8mm 14mm;
     box-shadow: none;
+    overflow: hidden;
   }
 
   .jl-header,
