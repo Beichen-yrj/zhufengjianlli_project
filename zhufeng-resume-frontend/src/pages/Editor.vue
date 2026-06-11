@@ -125,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getResumeById, updateResume } from '../api/resume'
@@ -829,40 +829,44 @@ async function onAiExtract({ text }) {
  * 显示 AI 提取对比弹窗：展示提取前后差异，用户可选择"采用"或"撤回"
  */
 function showExtractDiffDialog(snapshot, snapshotEnabledIds, extractedData) {
-  // 构建差异摘要文本
   const diffSummary = buildExtractDiffSummary(snapshot, extractedData)
+  const beforeText = formatFormDataForDisplay(snapshot)
+  const afterText = formatFormDataForDisplay(JSON.parse(JSON.stringify(formData)))
 
   ElMessageBox({
     title: 'AI 提取结果 - 请确认',
-    message: () => {
-      const container = document.createElement('div')
-      container.style.cssText = 'width:100%;max-width:600px;'
-      container.innerHTML = `
-        <div style="margin-bottom:12px;padding:8px 12px;background:#EFF6FF;border-radius:6px;border-left:3px solid #3B82F6;">
-          <div style="font-size:12px;color:#2563EB;font-weight:600;margin-bottom:4px;">AI 已完成信息提取</div>
-          <div style="font-size:11px;color:#6B7280;">以下为提取到的内容变更，请确认是否采用</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:4px;">提取前（当前简历）</div>
-            <div style="padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;font-size:12px;color:#6B7280;line-height:1.7;max-height:160px;overflow-y:auto;">${formatFormDataForDisplay(snapshot)}</div>
-          </div>
-          <div style="text-align:center;padding:4px 0;">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;"><path d="M10 4l-6 6h4v6h4v-6h4L10 4z" fill="#3B82F6"/></svg>
-            <span style="font-size:11px;color:#9CA3AF;margin-left:4px;">AI 提取</span>
-          </div>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;">提取后（AI 填入）</div>
-            <div style="padding:10px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:6px;font-size:12px;color:#065F46;line-height:1.7;max-height:200px;overflow-y:auto;">${formatFormDataForDisplay(JSON.parse(JSON.stringify(formData)))}</div>
-          </div>
-          <div style="margin-top:4px;padding:8px 10px;background:#FFFBEB;border-radius:6px;border-left:3px solid #F59E0B;">
-            <div style="font-size:11px;color:#92400E;font-weight:600;margin-bottom:3px;">变更摘要</div>
-            <div style="font-size:11px;color:#78350F;line-height:1.6;">${diffSummary}</div>
-          </div>
-        </div>
-      `
-      return container
-    },
+    message: () => h('div', { style: 'width:100%;max-width:600px;' }, [
+      // 顶部提示
+      h('div', { style: 'margin-bottom:12px;padding:8px 12px;background:#EFF6FF;border-radius:6px;border-left:3px solid #3B82F6;' }, [
+        h('div', { style: 'font-size:12px;color:#2563EB;font-weight:600;margin-bottom:4px;' }, 'AI 已完成信息提取'),
+        h('div', { style: 'font-size:11px;color:#6B7280;' }, '以下为提取到的内容变更，请确认是否采用'),
+      ]),
+      // 对比区域
+      h('div', { style: 'display:flex;flex-direction:column;gap:10px;' }, [
+        // 提取前
+        h('div', [
+          h('div', { style: 'font-size:13px;font-weight:600;color:#374151;margin-bottom:4px;' }, '提取前（当前简历）'),
+          h('div', { style: 'padding:10px 12px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:6px;font-size:12px;color:#6B7280;line-height:1.7;max-height:160px;overflow-y:auto;white-space:pre-wrap;' }, beforeText || '(空)'),
+        ]),
+        // 箭头
+        h('div', { style: 'text-align:center;padding:4px 0;' }, [
+          h('svg', { width: 20, height: 20, viewBox: '0 0 20 20', fill: 'none', style: 'display:inline-block;vertical-align:middle;' }, [
+            h('path', { d: 'M10 4l-6 6h4v6h4v-6h4L10 4z', fill: '#3B82F6' }),
+          ]),
+          h('span', { style: 'font-size:11px;color:#9CA3AF;margin-left:4px;' }, 'AI 提取'),
+        ]),
+        // 提取后
+        h('div', [
+          h('div', { style: 'font-size:13px;font-weight:600;color:#059669;margin-bottom:4px;' }, '提取后（AI 填入）'),
+          h('div', { style: 'padding:10px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:6px;font-size:12px;color:#065F46;line-height:1.7;max-height:200px;overflow-y:auto;white-space:pre-wrap;' }, afterText || '(空)'),
+        ]),
+        // 变更摘要
+        h('div', { style: 'margin-top:4px;padding:8px 10px;background:#FFFBEB;border-radius:6px;border-left:3px solid #F59E0B;' }, [
+          h('div', { style: 'font-size:11px;color:#92400E;font-weight:600;margin-bottom:3px;' }, '变更摘要'),
+          h('div', { style: 'font-size:11px;color:#78350F;line-height:1.6;', innerHTML: diffSummary }),
+        ]),
+      ]),
+    ]),
     showCancelButton: true,
     confirmButtonText: '✓ 采用提取结果',
     cancelButtonText: '✗ 撤回，恢复原状',
@@ -873,11 +877,9 @@ function showExtractDiffDialog(snapshot, snapshotEnabledIds, extractedData) {
     beforeClose: (action, instance, done) => {
       done()
       if (action === 'confirm') {
-        // 用户确认采用 → 保留已应用的提取结果
         ElMessage.success('已应用 AI 提取结果')
         formPanelRef.value?.resetAiExtract(true)
       } else {
-        // 用户取消 → 撤回到快照状态
         revertToSnapshot(snapshot, snapshotEnabledIds)
         ElMessage.info('已撤回，恢复到提取前的状态')
         formPanelRef.value?.resetAiExtract(false)
