@@ -8,9 +8,21 @@ public class ResumeVO {
     private Long id;
     private Long userId;
     private String title;
-    private Long templateId;
-    private String templateName;  // 模板名称（额外字段）
-    private String resumeData;
+    private String templateId;
+    private String templateName;
+
+    // 各模块 JSON 字段，前端直接解析
+    private String basic;
+    private String education;
+    private String experience;
+    private String projects;
+    private String skillContent;
+    private String selfEvaluationContent;
+    private String certificates;
+    private String customData;
+    private String menuSections;
+    private String globalSettings;
+
     private Integer status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

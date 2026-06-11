@@ -1,0 +1,92 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "export": "导出",
+    "confirm": "确认",
+    "back": "返回",
+    "create": "创建",
+    "search": "搜索",
+    "loading": "加载中...",
+    "noData": "暂无数据"
+  },
+  "nav": {
+    "home": "首页",
+    "dashboard": "仪表盘",
+    "templates": "模板市场",
+    "aiSettings": "AI 设置",
+    "settings": "设置",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录"
+  },
+  "editor": {
+    "basicInfo": "基本信息",
+    "education": "教育经历",
+    "experience": "工作经历",
+    "projects": "项目经历",
+    "skills": "技能特长",
+    "selfEvaluation": "自我评价",
+    "certificates": "证书",
+    "customSections": "自定义模块",
+    "layoutSettings": "布局设置",
+    "themeSettings": "主题设置",
+    "globalSettings": "全局设置",
+    "grammarCheck": "语法检查",
+    "aiPolish": "AI 润色",
+    "resumeTitle": "简历标题",
+    "exportPDF": "导出 PDF",
+    "preview": "预览",
+    "edit": "编辑"
+  },
+  "template": {
+    "classic": "经典风格",
+    "modern": "两栏布局",
+    "leftRight": "左右分栏",
+    "timeline": "时间线",
+    "minimalist": "极简风格",
+    "elegant": "优雅风格",
+    "creative": "创意风格",
+    "editorial": "编辑风格",
+    "selectTemplate": "选择模板",
+    "preview": "预览模板",
+    "useThis": "使用此模板"
+  },
+  "ai": {
+    "generate": "AI 生成",
+    "grammar": "语法检查",
+    "polish": "内容润色",
+    "model": "AI 模型",
+    "apiKey": "API Key",
+    "endpoint": "API 端点",
+    "testConnection": "测试连接",
+    "checking": "正在检查...",
+    "polishing": "正在润色...",
+    "noErrors": "未发现错误",
+    "errorsFound": "发现 {count} 个问题"
+  },
+  "home": {
+    "heroTitle": "创建令人印象深刻的简历",
+    "heroSubtitle": "使用 AI 驱动的在线简历编辑器，轻松打造专业简历",
+    "startNow": "立即开始",
+    "features": "功能特性",
+    "faq": "常见问题"
+  },
+  "dashboard": {
+    "myResumes": "我的简历",
+    "createResume": "创建简历",
+    "importResume": "导入简历",
+    "deleteConfirm": "确定要删除此简历吗？",
+    "noResumes": "还没有简历，点击创建你的第一份简历"
+  },
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "username": "用户名",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "email": "邮箱"
+  }
+}

@@ -1,0 +1,55 @@
+/**
+ * 简历本(jianliben.com)模板数据源
+ * 基于 makecv/ 页面爬取的模板列表
+ */
+export const JIANLIBEN_TEMPLATES = [
+  { id: 116, name: '简小历', category: '通用', color: '#333', usage: 2054675, img: 'https://aka.doubaocdn.com/s/3WQr1wZYl3' },
+  { id: 117, name: '简约简历', category: '通用', color: '#2196F3', usage: 2128629, img: 'https://aka.doubaocdn.com/s/y4oR1wZYl3' },
+  { id: 118, name: '清新简历', category: '通用', color: '#4CAF50', usage: 1950661, img: 'https://aka.doubaocdn.com/s/1rg11wZYl3' },
+  { id: 119, name: '稳重简历', category: '商务', color: '#607D8B', usage: 669593, img: 'https://aka.doubaocdn.com/s/dz5J1wZYl3' },
+  { id: 120, name: '创意简历', category: '设计', color: '#E91E63', usage: 431485, img: 'https://aka.doubaocdn.com/s/264S1wZYl3' },
+  { id: 121, name: '学术简历', category: '学术', color: '#795548', usage: 1016727, img: 'https://aka.doubaocdn.com/s/XlGV1wZYl3' },
+  { id: 122, name: '技术简历', category: '技术', color: '#3F51B5', usage: 609847, img: 'https://aka.doubaocdn.com/s/08m61wZYl3' },
+  { id: 123, name: '实习简历', category: '应届', color: '#009688', usage: 569530, img: 'https://aka.doubaocdn.com/s/tXgU1wZYl3' },
+  { id: 124, name: '经典简历', category: '通用', color: '#333', usage: 1071609, img: 'https://aka.doubaocdn.com/s/CTVV1wZYl3' },
+  { id: 125, name: '极简简历', category: '通用', color: '#555', usage: 637642, img: 'https://aka.doubaocdn.com/s/O1MC1wZYl3' },
+  { id: 126, name: '双栏简历', category: '通用', color: '#1565C0', usage: 216247, img: 'https://aka.doubaocdn.com/s/UkOM1wZYl3' },
+  { id: 127, name: '时间轴简历', category: '通用', color: '#FF5722', usage: 419064, img: 'https://aka.doubaocdn.com/s/EyE01wZYl3' },
+  { id: 128, name: '左图右文', category: '设计', color: '#673AB7', usage: 462065, img: 'https://aka.doubaocdn.com/s/7DXJ1wZYl3' },
+  { id: 129, name: '深色简历', category: '商务', color: '#212121', usage: 489811, img: 'https://aka.doubaocdn.com/s/gWHi1wZYl3' },
+  { id: 130, name: '彩色简历', category: '设计', color: '#E91E63', usage: 196558, img: 'https://aka.doubaocdn.com/s/FUKr1wZYl3' },
+  { id: 131, name: '表格简历', category: '通用', color: '#455A64', usage: 423717, img: 'https://aka.doubaocdn.com/s/COa31wZYl3' },
+  { id: 132, name: '优雅简历', category: '通用', color: '#00838F', usage: 918965, img: 'https://aka.doubaocdn.com/s/BuZY1wZYl3' },
+  { id: 133, name: '现代简历', category: '现代', color: '#283593', usage: 308986, img: 'https://aka.doubaocdn.com/s/GyMX1wZYl3' },
+  { id: 134, name: '编辑风简历', category: '媒体', color: '#37474F', usage: 359277, img: 'https://aka.doubaocdn.com/s/KUXY1wZYl3' },
+  { id: 135, name: '卡片简历', category: '设计', color: '#C62828', usage: 292299, img: 'https://aka.doubaocdn.com/s/jGm61wZYl3' },
+  { id: 136, name: '条理简历', category: '通用', color: '#2E7D32', usage: 457838, img: 'https://aka.doubaocdn.com/s/O3SJ1wZYl3' },
+  { id: 137, name: '大气简历', category: '商务', color: '#1A237E', usage: 336553, img: 'https://aka.doubaocdn.com/s/NCFh1wZYl3' },
+  { id: 138, name: '清爽简历', category: '通用', color: '#00796B', usage: 304156, img: 'https://aka.doubaocdn.com/s/H9O21wZYl3' },
+  { id: 139, name: '专业简历', category: '技术', color: '#303F9F', usage: 329796, img: 'https://aka.doubaocdn.com/s/NDBR1wZYl3' },
+  { id: 140, name: '活力简历', category: '设计', color: '#D81B60', usage: 526953, img: 'https://aka.doubaocdn.com/s/bd1C1wZYl3' },
+  { id: 141, name: '沉稳简历', category: '商务', color: '#455A64', usage: 262454, img: 'https://aka.doubaocdn.com/s/98eH1wZYl3' },
+  { id: 142, name: '文艺简历', category: '设计', color: '#6D4C41', usage: 253287, img: 'https://aka.doubaocdn.com/s/B2zP1wZYl3' },
+  { id: 143, name: '简洁简历', category: '通用', color: '#424242', usage: 282759, img: 'https://aka.doubaocdn.com/s/hR221wZYl3' },
+  { id: 144, name: '精致简历', category: '通用', color: '#BF360C', usage: 325511, img: 'https://aka.doubaocdn.com/s/kwVk1wZYl3' },
+  { id: 145, name: '标准简历', category: '通用', color: '#0D47A1', usage: 217836, img: 'https://aka.doubaocdn.com/s/XxDR1wZYl3' },
+  { id: 146, name: '时尚简历', category: '设计', color: '#AD1457', usage: 380285, img: 'https://aka.doubaocdn.com/s/rtpX1wZYl3' },
+  { id: 147, name: '稳重蓝', category: '商务', color: '#1565C0', usage: 316271, img: 'https://aka.doubaocdn.com/s/Uk0U1wZYl3' },
+  { id: 148, name: '清新绿', category: '通用', color: '#43A047', usage: 273777, img: 'https://aka.doubaocdn.com/s/IbrW1wZYl3' },
+  { id: 149, name: '热情红', category: '设计', color: '#D32F2F', usage: 264943, img: 'https://aka.doubaocdn.com/s/NuLI1wZYl3' },
+  { id: 150, name: '神秘紫', category: '设计', color: '#7B1FA2', usage: 276883, img: 'https://aka.doubaocdn.com/s/UgUx1wZYl3' },
+  { id: 151, name: '高端灰', category: '商务', color: '#546E7A', usage: 394713, img: 'https://aka.doubaocdn.com/s/sUJ21wZYl3' },
+]
+
+/** 分类选项 */
+export const TEMPLATE_CATEGORIES = [
+  { label: '全部', value: 'all' },
+  { label: '通用', value: '通用' },
+  { label: '商务', value: '商务' },
+  { label: '设计', value: '设计' },
+  { label: '技术', value: '技术' },
+  { label: '应届', value: '应届' },
+  { label: '学术', value: '学术' },
+  { label: '媒体', value: '媒体' },
+  { label: '现代', value: '现代' },
+]

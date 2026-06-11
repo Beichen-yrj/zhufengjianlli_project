@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* 覆盖 Element Plus 与 Tailwind 的冲突 */
+@layer base {
+  :root {
+    --color-primary: #667eea;
+    --color-primary-dark: #5a6fd6;
+  }
+}

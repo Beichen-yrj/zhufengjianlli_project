@@ -1,0 +1,92 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "export": "Export",
+    "confirm": "Confirm",
+    "back": "Back",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No Data"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "templates": "Templates",
+    "aiSettings": "AI Settings",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "editor": {
+    "basicInfo": "Basic Info",
+    "education": "Education",
+    "experience": "Experience",
+    "projects": "Projects",
+    "skills": "Skills",
+    "selfEvaluation": "Self Evaluation",
+    "certificates": "Certificates",
+    "customSections": "Custom Sections",
+    "layoutSettings": "Layout Settings",
+    "themeSettings": "Theme Settings",
+    "globalSettings": "Global Settings",
+    "grammarCheck": "Grammar Check",
+    "aiPolish": "AI Polish",
+    "resumeTitle": "Resume Title",
+    "exportPDF": "Export PDF",
+    "preview": "Preview",
+    "edit": "Edit"
+  },
+  "template": {
+    "classic": "Classic",
+    "modern": "Two Column",
+    "leftRight": "Left Right",
+    "timeline": "Timeline",
+    "minimalist": "Minimalist",
+    "elegant": "Elegant",
+    "creative": "Creative",
+    "editorial": "Editorial",
+    "selectTemplate": "Select Template",
+    "preview": "Preview",
+    "useThis": "Use This Template"
+  },
+  "ai": {
+    "generate": "AI Generate",
+    "grammar": "Grammar Check",
+    "polish": "Content Polish",
+    "model": "AI Model",
+    "apiKey": "API Key",
+    "endpoint": "API Endpoint",
+    "testConnection": "Test Connection",
+    "checking": "Checking...",
+    "polishing": "Polishing...",
+    "noErrors": "No errors found",
+    "errorsFound": "{count} issues found"
+  },
+  "home": {
+    "heroTitle": "Create Impressive Resumes",
+    "heroSubtitle": "Build professional resumes effortlessly with our AI-powered online editor",
+    "startNow": "Get Started",
+    "features": "Features",
+    "faq": "FAQ"
+  },
+  "dashboard": {
+    "myResumes": "My Resumes",
+    "createResume": "Create Resume",
+    "importResume": "Import Resume",
+    "deleteConfirm": "Are you sure you want to delete this resume?",
+    "noResumes": "No resumes yet. Create your first one!"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "email": "Email"
+  }
+}

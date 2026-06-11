@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class ResumeListVO {
     private Long id;
     private String title;
-    private Long templateId;
+    private String templateId;
     private String templateName;
     private Integer status;
     private LocalDateTime createdAt;

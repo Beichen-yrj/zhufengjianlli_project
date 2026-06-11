@@ -40,11 +40,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const loginForm = ref({
@@ -66,7 +67,9 @@ const handleLogin = async () => {
   try {
     await userStore.login(loginForm.value)
     ElMessage.success('登录成功')
-    router.push('/dashboard')
+    // 有 redirect 参数则跳回目标页
+    const redirect = route.query.redirect || '/dashboard'
+    router.push(redirect)
   } catch (error) {
     console.error(error)
   } finally {

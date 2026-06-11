@@ -8,5 +8,5 @@ public class AiGenerateDTO {
     @NotBlank(message = "提示词不能为空")
     private String prompt;
     
-    private Long templateId;  // 可选，指定模板
+    private String templateId;  // 可选，指定模板（如 "classic", "modern"）
 }
